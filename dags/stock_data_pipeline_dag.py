@@ -11,6 +11,9 @@ from airflow.operators.empty import EmptyOperator
 from airflow.operators.python import PythonOperator
 from datetime import datetime
 
+from sqlalchemy import create_engine, text
+
+
 STOCK_LIST_ALL=['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'TSLA', 'NVDA', 'JPM', 'V', 'JNJ', 'XOM']
 HISTORICAL_DATA_PERIOD="1y"
 
@@ -71,7 +74,9 @@ def fetch_stock_data(stock_list: list[str], period:str, ti):
     ti.xcom_push(key="stock_data_json", value=json_data)
 
     return json_data
+
     
+
 default_args={'owner':'airflow',
               'depends_on_past': False,
               'email_on_failure':False,
