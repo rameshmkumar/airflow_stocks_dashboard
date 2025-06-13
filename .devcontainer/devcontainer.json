@@ -1,0 +1,40 @@
+{
+    "name": "Airflow Stock Dashboard Dev Environment",
+
+    "dockerComposeFile": ["../docker-compose.yaml", 
+                            "../docker-compose-data-services.yaml"],
+    "service": "airflow-worker",
+    "workspaceFolder": "/opt/airflow",
+    "remoteUser": "airflow",
+
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "ms-azuretools.vscode-docker", // For Docker management within VS Code
+                "redhat.vscode-yaml",        // For editing YAML files
+                "cbrevik.toggle-hidden"      // Optional: To easily show/hide hidden files like .env
+            ],
+            "settings": {
+                "python.defaultInterpreterPath": "/usr/local/bin/python",
+                "python.analysis.extraPaths": [ // Helps Pylance find your DAGs/plugins
+                    "/opt/airflow/dags",
+                    "/opt/airflow/plugins"
+                ],
+                "terminal.integrated.defaultProfile.linux": "bash"
+            }
+        }
+    },
+
+    "forwardPorts": [8080, 5435, 3000], //Airflow, TimescaleDB, Grafana
+
+    "runServices": ["postgres", "redis", "airflow-init", "airflow-apiserver", "airflow-scheduler", "airflow-worker", "airflow-dag-processor", "airflow-triggerer", "timescaledb_stocks","grafana_stocks"],
+
+    "shutdownAction": "stopCompose",
+
+    "mounts": ["source=${localEnv:HOME}/.aws,target=/home/airflow/.aws,type=bind,consistency=cached,readonly"]
+
+
+
+}

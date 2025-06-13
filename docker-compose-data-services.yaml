@@ -1,0 +1,51 @@
+
+services:
+  timescaledb_stocks:
+    image: timescale/timescaledb:latest-pg14
+    container_name: timescaledb_stock_data_service
+    ports:
+      - "5435:5432" #Mapping the host port with postgres port
+    
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: stockdb
+    
+    volumes:
+      - timescaledb_stocks_data_vol:/var/lib/postgresql/data     #Mounting the data folder
+    
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+
+
+  grafana_stocks:
+    image: grafana/grafana-oss:latest
+    container_name: grafana_stocks_dashboard_service
+    ports:
+      - "3000:3000" #mapping the host port with grafana's port
+
+    volumes:
+      - grafana_stocks_data_vol:/var/lib/grafana
+
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    
+    depends_on:
+      timescaledb_stocks:
+        condition: service_healthy #Wait for TimescaleDB to be healthy
+  
+volumes:
+  timescaledb_stocks_data_vol:
+  grafana_stocks_data_vol:
+
+networks:
+  default:
+    name: stock_data_network
+  
